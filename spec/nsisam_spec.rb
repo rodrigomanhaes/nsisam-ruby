@@ -1,10 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'base64'
 
 describe NSISam do
 
   before :all do
-    @nsisam = NSISam::Client.new user: 'test', password: 'test',
-                                 host: 'localhost', port: '8888'
+    fake_options = { user: 'test', password: 'test', host: 'localhost', 
+      port: '8888' }
+    @nsisam = NSISam::Client.new(integration_options || fake_options)
+    p integration_options
     @keys = Array.new
     @fake_sam = NSISam::FakeServerManager.new.start_server
   end
@@ -23,7 +26,7 @@ describe NSISam do
 
   context "storing" do
     it "can store a value in SAM" do
-      response = @nsisam.store("something")
+      response = @nsisam.store(doc: Base64.encode64("something"))
       response.should_not be_nil
       response.should have_key("key")
       response.should have_key("checksum")
